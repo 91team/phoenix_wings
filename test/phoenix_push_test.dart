@@ -2,22 +2,22 @@
 
 import 'dart:async';
 
+import 'package:mockito/annotations.dart';
 import 'package:phoenix_wings/src/phoenix_channel.dart';
 import 'package:phoenix_wings/src/phoenix_push.dart';
 import 'package:phoenix_wings/src/phoenix_socket.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 
-class MockChannel extends Mock implements PhoenixChannel {}
-
-class MockSocket extends Mock implements PhoenixSocket {}
+import 'phoenix_push_test.mocks.dart';
 
 var socket, channel;
 
+@GenerateMocks([PhoenixChannel, PhoenixSocket])
 void main() {
   setUp(() {
-    socket = new MockSocket();
-    channel = new MockChannel();
+    socket = new MockPhoenixSocket();
+    channel = new MockPhoenixChannel();
     when(channel.socket).thenReturn(socket);
     when(socket.makeRef()).thenReturn("1");
   });
@@ -89,8 +89,7 @@ void main() {
     push.send();
 
     await new Future<Null>.delayed(new Duration(milliseconds: 90));
-    verify(
-        channel.trigger("chan_reply_1", {"status": "timeout", "response": {}}));
+    verify(channel.trigger("chan_reply_1", {"status": "timeout", "response": {}}));
   });
 
   test("clears timer when response received in time", () async {
