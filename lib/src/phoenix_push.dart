@@ -9,7 +9,7 @@ class PhoenixPush {
   int? timeout;
   List recHooks = [];
   Map? payload = {};
-  PhoenixChannel? channel;
+  PhoenixChannel channel;
   String? event;
   String? ref;
   String? refEvent;
@@ -17,7 +17,7 @@ class PhoenixPush {
   Timer? timeoutTimer;
 
   PhoenixPush(this.channel, this.event, this.payload, this.timeout) {
-    ref = this.channel!.socket!.makeRef();
+    ref = this.channel.socket!.makeRef();
   }
 
   PhoenixPush receive(String status, Function(Map? response) callback) {
@@ -34,9 +34,7 @@ class PhoenixPush {
   }
 
   matchReceive(Map? payload) {
-    recHooks
-        .where((hook) => hook.status == payload!["status"])
-        .forEach((hook) => hook.callback(payload!["response"]));
+    recHooks.where((hook) => hook.status == payload!["status"]).forEach((hook) => hook.callback(payload!["response"]));
   }
 
   resend(int? timeout) {
@@ -49,7 +47,7 @@ class PhoenixPush {
     if (refEvent == null) {
       return;
     }
-    channel!.off(refEvent);
+    channel.off(refEvent);
   }
 
   reset() {
@@ -62,17 +60,16 @@ class PhoenixPush {
 
   send() {
     startTimeout();
-    refEvent = channel!.replyEventName(ref);
+    refEvent = channel.replyEventName(ref);
     sent = true;
-    channel!.socket!.push(new PhoenixMessage(
-        channel!.joinRef, ref, channel!.topic, event, payload));
+    channel.socket!.push(new PhoenixMessage(channel.joinRef, ref, channel.topic, event, payload));
   }
 
   startTimeout() {
     cancelTimeout();
-    ref = channel!.socket!.makeRef();
-    refEvent = channel!.replyEventName(ref);
-    channel!.on(refEvent, (payload, _a, _b) {
+    ref = channel.socket!.makeRef();
+    refEvent = channel.replyEventName(ref);
+    channel.on(refEvent, (payload, _a, _b) {
       cancelRefEvent();
       cancelTimeout();
       receivedResp = payload;
@@ -90,7 +87,7 @@ class PhoenixPush {
   }
 
   trigger(status, response) {
-    channel!.trigger(refEvent, {"status": status, "response": response});
+    channel.trigger(refEvent, {"status": status, "response": response});
   }
 }
 

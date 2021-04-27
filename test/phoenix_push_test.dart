@@ -86,6 +86,7 @@ void main() {
   test("triggers timeout when response not received in time", () async {
     final push = new PhoenixPush(channel, "event", {}, 10);
     when(channel.replyEventName("1")).thenReturn("chan_reply_1");
+    when(channel.on(any, any)).thenReturn(0);
     push.send();
 
     await new Future<Null>.delayed(new Duration(milliseconds: 90));
